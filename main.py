@@ -1,5 +1,6 @@
 import sqlite3
 import logging
+from contrasena import generador
 from functs import show_get_next_step
 from crypto import Crypto
 logging.basicConfig(filename="pass.log", level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
@@ -28,7 +29,7 @@ except Exception as e:
 
 
 ns = show_get_next_step()
-while ns != 5:
+while ns != 7:
     if ns == 1:
         name = input('Enter name: ')
         password = input('Enter password: ')
@@ -76,5 +77,30 @@ while ns != 5:
             logging.error(e)
             print("Error: ", e)
     elif ns == 5:
+        name = input('Enter name: ')
+        keyword = input('Enter keyword: ')
+        generated = generador()
+        print('Generated password: ', generated)
+        try:
+            cur.execute("INSERT INTO pass (name, password, keyword) VALUES (?, ?, ?)", (name, cy.encrypt(generated), keyword))
+            con.commit()
+        except Exception as e:
+            logging.error('Couldnt insert into table')
+            logging.error(e)
+            print("Error: ", e)
+    elif ns == 6:
+        keyword = input('Enter keyword: ')
+        try:
+            query = f'SELECT name FROM pass WHERE keyword LIKE "%{keyword}%"'
+            cur.execute(query)
+            con.commit()
+            rows = cur.fetchall()
+            for row in rows:
+                print('name: ', row[0])
+        except Exception as e:
+            logging.error('Couldnt select from table')
+            logging.error(e)
+            print("Error: ", e)
+    elif ns == 7:
         break
     ns = show_get_next_step()
