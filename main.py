@@ -1,10 +1,12 @@
 import sqlite3
 import logging
 from functs import show_get_next_step
-from crypt import AESCipher
+from crypto import Crypto
 logging.basicConfig(filename="pass.log", level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
 
-passkey = 'alkdjaslkdjalskj1209381290'
+passkey = 'O262bqM9Dfd08oMRGJBrlO9ULfm24bsu8DGe7N6riUw='
+passkey = bytes(passkey, 'utf-8')
+cy = Crypto(passkey)
 
 try:
     con = sqlite3.connect("pass.db")
@@ -24,11 +26,6 @@ except Exception as e:
     logging.error(e)
     print("Error: ", e)
 
-try:
-    cy = AESCipher(passkey)
-except:
-    logging.error('Couldnt create cipher')
-    print("Error: ", e)
 
 ns = show_get_next_step()
 while ns != 5:
@@ -49,7 +46,7 @@ while ns != 5:
         #missing search
         #keyword = input('Enter keyword: ')
         try:
-            cur.execute("SELECT password FROM pass WHERE name=?", (name))
+            cur.execute("SELECT password FROM pass WHERE name=?", (name,))
             con.commit()
             rows = cur.fetchall()
             for row in rows:
@@ -72,7 +69,7 @@ while ns != 5:
     elif ns == 4:
         name = input('Enter name: ')
         try:
-            cur.execute("DELETE FROM pass WHERE name=??", (name))
+            cur.execute("DELETE FROM pass WHERE name=?", (name,))
             con.commit()
         except Exception as e:
             logging.error('Couldnt delete from table')
